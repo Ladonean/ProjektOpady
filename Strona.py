@@ -18,10 +18,10 @@ import os
 path_shapefile1 = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_0.shp'
 path_shapefile = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_1.shp'
 
-path_csv = 'https://github.com/Ladonean/FigDetect/blob/main/o_d_07_2007.csv'
+path_csv1 = 'https://github.com/Ladonean/FigDetect/blob/main/o_d_07_2007.csv'
 
-response = requests.get(url)
-response.raise_for_status()
+path_csv = requests.get(path_csv1)
+
 
 path_stacje = r"C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Stacje.csv"
 # Funkcja do wczytywania danych z pliku tekstowego
