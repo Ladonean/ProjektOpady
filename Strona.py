@@ -15,16 +15,18 @@ import sys
 import os
 
 #Ścieżki jako wybór trzeba zrobić oprócz tych do kształtów
-path_shapefile1 = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_0.shp'
-path_shapefile = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_1.shp'
+#path_shapefile1 = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_0.shp'
+path_shapefile1 = 'https://github.com/Ladonean/FigDetect/blob/main/gadm41_POL_1.shp'
 
 path_csv1 = 'https://github.com/Ladonean/FigDetect/blob/main/o_d_07_2007.csv'
 
-path_csv = requests.get(path_csv1)
 
 
 path_stacje = r"C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Stacje.csv"
 # Funkcja do wczytywania danych z pliku tekstowego
+
+path_csv = requests.get(path_csv1)
+path_shapefile = requests.get(path_shapefile1)
 
 def wczytaj_csv(path_csv):
 
@@ -142,7 +144,7 @@ print(max_value)
 print(min_value)
 
 gdf = gpd.read_file(path_shapefile)
-gdf1 = gpd.read_file(path_shapefile1)
+#gdf1 = gpd.read_file(path_shapefile1)
 
 m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=6.2)
 
