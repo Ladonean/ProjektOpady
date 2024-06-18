@@ -11,12 +11,18 @@ from streamlit_folium import st_folium
 from folium import Choropleth, Circle, Marker
 from scipy.interpolate import griddata
 from geokrige.tools import TransformerGDF
+import sys
+import os
 
 #Ścieżki jako wybór trzeba zrobić oprócz tych do kształtów
 path_shapefile1 = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_0.shp'
 path_shapefile = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_1.shp'
 
-path_csv = r"C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Dane\2023\2010_01_o\o_d_01_2010.csv"
+path_csv = 'https://github.com/Ladonean/FigDetect/blob/main/o_d_07_2007.csv'
+
+response = requests.get(url)
+response.raise_for_status()
+
 path_stacje = r"C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Stacje.csv"
 # Funkcja do wczytywania danych z pliku tekstowego
 
