@@ -22,11 +22,12 @@ path_csv1 = 'https://github.com/Ladonean/FigDetect/blob/main/o_d_07_2007.csv'
 
 
 
-path_stacje = r"C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Stacje.csv"
+path_stacje1 = 'https://github.com/Ladonean/FigDetect/blob/main/Stacje.csv'
 # Funkcja do wczytywania danych z pliku tekstowego
 
 path_csv = requests.get(path_csv1)
 path_shapefile = requests.get(path_shapefile1)
+path_stacje = requests.get(path_stacje1)
 
 def wczytaj_csv(path_csv):
 
