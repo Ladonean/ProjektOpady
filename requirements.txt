@@ -4,6 +4,6 @@ pandas==2.2.2
 matplotlib==3.8.4
 cartopy==0.23.0
 geopandas==0.14.4
-requests
+requests==2.31.1
 sys
 os
