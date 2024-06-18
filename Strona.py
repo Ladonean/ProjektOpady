@@ -5,8 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy
 import cartopy.crs as ccrs
-import geopandas as gpd
-from folium import Choropleth, Circle, Marker
+import geopandas as gpdr
 from scipy.interpolate import griddata
 from geokrige.tools import TransformerGDF
 import sys
