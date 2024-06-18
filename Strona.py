@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import cartopy
 import cartopy.crs as ccrs
 import geopandas as gpd
-import folium
-from streamlit_folium import st_folium
 from folium import Choropleth, Circle, Marker
 from scipy.interpolate import griddata
 from geokrige.tools import TransformerGDF
@@ -147,26 +145,26 @@ print(min_value)
 gdf = gpd.read_file(path_shapefile)
 #gdf1 = gpd.read_file(path_shapefile1)
 
-m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=6.2)
+#m = folium.Map(location=[gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()], zoom_start=6.2)
 
-folium.GeoJson(gdf).add_to(m)
-folium.GeoJson(gdf1).add_to(m)
+#folium.GeoJson(gdf).add_to(m)
+#folium.GeoJson(gdf1).add_to(m)
 
 #nanoszenie punktów na folium
-for _, row in Wynik.iterrows():
-    folium.CircleMarker(
-        location=[row['X'], row['Y']],
-        radius=1,
-        popup=f"{row['Stacja']}: {row['Opady']} mm",
-        color='blue',
-        fill=True,
-        fill_color='blue',
-        fill_opacity=0.6
-    ).add_to(m)
+#for _, row in Wynik.iterrows():
+    #folium.CircleMarker(
+      #  location=[row['X'], row['Y']],
+      #  radius=1,
+      #  popup=f"{row['Stacja']}: {row['Opady']} mm",
+      #  color='blue',
+      #  fill=True,
+       # fill_color='blue',
+       # fill_opacity=0.6
+   # ).add_to(m)
 
 st.title('Tabela')
 
-st_folium(m, width=700, height=600)
+#st_folium(m, width=700, height=600)
 
 st.dataframe(Wynik, width=800, height=1200)
 
