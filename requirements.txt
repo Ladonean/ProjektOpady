@@ -6,3 +6,4 @@ cartopy==0.23.0
 geopandas==0.14.4
 requests
 scipy
+geokrige
