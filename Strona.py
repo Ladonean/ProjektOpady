@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import csv
 import numpy as np
-import pyproj
 import matplotlib.pyplot as plt
 import cartopy
 import cartopy.crs as ccrs
