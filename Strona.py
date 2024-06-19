@@ -10,6 +10,7 @@ from scipy.interpolate import griddata
 from geokrige.tools import TransformerGDF
 import sys
 import os
+import requests
 
 #Ścieżki jako wybór trzeba zrobić oprócz tych do kształtów
 #path_shapefile1 = r'C:\Users\domin\OneDrive\Pulpit\ProjektInglot\Skrypty\Mapa\gadm41_POL_0.shp'
