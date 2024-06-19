@@ -67,7 +67,7 @@ def plot_wynik(path_shapefile, Wynik):
     colorbar = plt.colorbar(cbar, cax=cax, orientation='vertical')
 
     ax.grid(lw=0.2)
-    ax.set_title('Opady miesiąc ...', fontweight='bold', pad=15)
+    ax.set_title(f'Opady {month} {year}', fontweight='bold', pad=15)
 
     return fig, ax
 
@@ -81,7 +81,7 @@ month = st.selectbox("Wybierz miesiąc",
                       "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"])
 
 # Konwersja nazwy miesiąca na dwucyfrowy numer miesiąca
-month_number = str(list(calendar.month_name).index(month)).zfill(2)
+month_number = str(list(calendar.month_name).index(month.capitalize())).zfill(2)
 
 # Generowanie ścieżki pliku na podstawie wyboru
 path_csv1 = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{month_number}_{year}.csv'
