@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 import requests
+from io import StringIO
 
 #Ścieżki jako wybór trzeba zrobić oprócz tych do kształtów
 
@@ -17,60 +18,49 @@ path_stacje1 = 'https://github.com/Ladonean/FigDetect/blob/main/Stacje.csv'
 # Funkcja do wczytywania danych z pliku tekstowego
 
 path_csv = requests.get(path_csv1)
-path_csv = StringIO(path_csv.text)
+
 path_stacje = requests.get(path_stacje1)
-path_stacje = StringIO(path_stacje.text)
 
 
-def wczytaj_csv(path_csv):
 
-    box=[]
+def wczytaj_csv(url):
+    
+    response = requests.get(url)
+    if response.status_code != 200:
+        st.error("Could not fetch CSV data from the provided URL")
+        return None
+    data = response.content.decode('windows-1250')
+    df = pd.read_csv(StringIO(data), delimiter=',', header=None)
+    
+    # Selecting and reshaping relevant columns
+    df = df.iloc[:, [0, 1, 5]]
+    df.columns = ['Kod stacji', 'Stacja', 'Opady']
+    
+    return df
 
-    with open(path_csv, 'r') as file:
-        csvreader = csv.reader(file)
+def wczytaj_stacje(url):
+    
+    response = requests.get(url)
+    if response.status_code != 200:
+        st.error("Could not fetch station data from the provided URL")
+        return None
+    data = response.content.decode('windows-1250')
+    df = pd.read_csv(StringIO(data), delimiter=',', header=None)
+    
+    df.columns = ['X', 'Y', 'Stacja']
+    df['X'] = df['X'].astype(float)
+    df['Y'] = df['Y'].astype(float)
+    
+    return df
 
-        for row in csvreader:
-            box.append(row)
-
-    file_csv = np.array(box)
-    file_csv = file_csv.reshape(-1, 16)
-    col_0 = file_csv[:, 0]
-    col_1 = file_csv[:, 1]
-    col_2 = file_csv[:, 5]
-
-    # Łączenie kolumn w nową macierz
-    file_csv = np.column_stack((col_0, col_1, col_2))
-
-    return file_csv
-
-def wczytaj_stacje(path_stacje):
-
-    box=[]
-
-    with open(path_stacje, 'r') as file:
-        csvreader = csv.reader(file)
-
-        for row in csvreader:
-            box.append(row)
-
-    Lista = np.array(box)
-    Lista = Lista.reshape(-1, 3)
-
-    Lista = np.column_stack((Lista[:,0], Lista[:,1], Lista[:,2]))
-
-    #Lista[:,0], Lista[:,1] = transformacja.transform(Lista[:,0], Lista[:,1])
-    Lista = pd.DataFrame(Lista, columns=['X','Y', 'Stacja'])
-    Lista['X'] = Lista['X'].astype(float)
-    Lista['Y'] = Lista['Y'].astype(float)
-    return Lista
-
-def suma_opadów(tabela):
-    df = pd.DataFrame(tabela, columns=['Kod stacji','Stacja', 'Opady'])
-    df['Opady'] = pd.to_numeric(df['Opady'])
-
-    df_suma = df.groupby('Stacja')['Opady'].sum().reset_index()
+def suma_opadow(tabela):
+    
+    tabela['Opady'] = pd.to_numeric(tabela['Opady'], errors='coerce')
+    df_suma = tabela.groupby('Stacja')['Opady'].sum().reset_index()
     df_suma['Opady'] = df_suma['Opady'].astype(float)
+    
     return df_suma
+
 
 
 
@@ -79,7 +69,7 @@ st.title("OpadyPolska")
 
 df = wczytaj_csv(path_csv)
 
-df_suma = suma_opadów(df)
+df_suma = suma_opadow(df)
 
 df_baza = wczytaj_stacje(path_stacje)
 
