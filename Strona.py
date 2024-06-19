@@ -7,17 +7,13 @@ from io import StringIO
 import geopandas as gpd
 from geokrige.tools import TransformerGDF
 from scipy.interpolate import griddata
-
-# URLs to the CSV files
-path_csv1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_07_2007.csv'
-path_stacje1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/Stacje.csv'
-path_shapefile = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
+import calendar
 
 # Function to read CSV from URL
 def wczytaj_csv(url):
     response = requests.get(url)
     if response.status_code != 200:
-        st.error("Could not fetch CSV data from the provided URL")
+        st.error("Nie udało się pobrać danych z podanego URL")
         return None
     data = response.content.decode('windows-1250')
     df = pd.read_csv(StringIO(data), delimiter=',', header=None)
@@ -32,7 +28,7 @@ def wczytaj_csv(url):
 def wczytaj_stacje(url):
     response = requests.get(url)
     if response.status_code != 200:
-        st.error("Could not fetch station data from the provided URL")
+        st.error("Nie udało się pobrać danych stacji z podanego URL")
         return None
     data = response.content.decode('windows-1250')
     df = pd.read_csv(StringIO(data), delimiter=',', header=None)
@@ -50,9 +46,7 @@ def suma_opadow(tabela):
     df_suma['Opady'] = df_suma['Opady'].astype(float)
     return df_suma
 
-
 def plot_wynik(path_shapefile, Wynik):
-
     X = np.column_stack([Wynik['X'], Wynik['Y']])
     y = np.array(Wynik['Opady'])
 
@@ -75,12 +69,24 @@ def plot_wynik(path_shapefile, Wynik):
     ax.grid(lw=0.2)
     ax.set_title('Opady miesiąc ...', fontweight='bold', pad=15)
 
-    #scatter = ax.scatter(Wynik['Y'].astype(float), Wynik['X'].astype(float), c='black', marker='x',label='Punkty pomiarowe')
-    
     return fig, ax
 
 # Streamlit app layout
 st.title("OpadyPolska")
+
+# Wybór roku i miesiąca
+year = st.selectbox("Wybierz rok", [2018, 2019, 2020, 2021, 2022])
+month = st.selectbox("Wybierz miesiąc", 
+                     ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
+                      "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"])
+
+# Konwersja nazwy miesiąca na dwucyfrowy numer miesiąca
+month_number = str(list(calendar.month_name).index(month)).zfill(2)
+
+# Generowanie ścieżki pliku na podstawie wyboru
+path_csv1 = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{month_number}_{year}.csv'
+path_stacje1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/Stacje.csv'
+path_shapefile = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
 
 # Fetching and processing data
 df = wczytaj_csv(path_csv1)
@@ -89,27 +95,26 @@ df_baza = wczytaj_stacje(path_stacje1)
 if df is not None and df_baza is not None:
     df_suma = suma_opadow(df)
     
-    # Merging data
+    # Łączenie danych
     df_baza['Stacja'] = df_baza['Stacja'].str.strip()
     df_suma['Stacja'] = df_suma['Stacja'].str.strip()
     
     Wynik = pd.merge(df_baza, df_suma[['Stacja', 'Opady']], on='Stacja', how='left')
     Wynik = Wynik.dropna()
     
-    # Displaying data
+    # Wyświetlanie danych
     st.title('Tabela')
     st.dataframe(Wynik, width=800, height=1200)
     
     max_value = Wynik['Opady'].astype(float).max()
     min_value = Wynik['Opady'].astype(float).min()
     
-    st.write(f"Max Opady: {max_value}")
-    st.write(f"Min Opady: {min_value}")
+    st.write(f"Maksymalna ilość opadów: {max_value}")
+    st.write(f"Minimalna ilość opadów: {min_value}")
+
+    # Rysowanie mapy
+    fig, ax = plot_wynik(path_shapefile, Wynik)
+    st.pyplot(fig)
 
 else:
-    st.error("Failed to load data.")
-
-
-fig, ax = plot_wynik(path_shapefile, Wynik)
-
-st.pyplot(fig)
+    st.error("Nie udało się załadować danych.")
