@@ -9,6 +9,22 @@ from geokrige.tools import TransformerGDF
 from scipy.interpolate import griddata
 import calendar
 
+# Tłumaczenie polskich nazw miesięcy na angielskie
+months_dict = {
+    "Styczeń": "January",
+    "Luty": "February",
+    "Marzec": "March",
+    "Kwiecień": "April",
+    "Maj": "May",
+    "Czerwiec": "June",
+    "Lipiec": "July",
+    "Sierpień": "August",
+    "Wrzesień": "September",
+    "Październik": "October",
+    "Listopad": "November",
+    "Grudzień": "December"
+}
+
 # Function to read CSV from URL
 def wczytaj_csv(url):
     response = requests.get(url)
@@ -81,7 +97,8 @@ month = st.selectbox("Wybierz miesiąc",
                       "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"])
 
 # Konwersja nazwy miesiąca na dwucyfrowy numer miesiąca
-month_number = str(list(calendar.month_name).index(month.capitalize())).zfill(2)
+english_month = months_dict[month]
+month_number = str(list(calendar.month_name).index(english_month)).zfill(2)
 
 # Generowanie ścieżki pliku na podstawie wyboru
 path_csv1 = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{month_number}_{year}.csv'
