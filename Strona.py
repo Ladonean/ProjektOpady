@@ -138,8 +138,6 @@ Wynik = Wynik.dropna()
 max_value = Wynik['Opady'].astype(float).max()
 min_value = Wynik['Opady'].astype(float).min()
 
-print(max_value)
-print(min_value)
 
 gdf = gpd.read_file(path_shapefile)
 #gdf1 = gpd.read_file(path_shapefile1)
@@ -167,9 +165,7 @@ st.title('Tabela')
 
 st.dataframe(Wynik, width=800, height=1200)
 
-fig, ax = plot_wynik(path_shapefile, Wynik)
 
-st.pyplot(fig)
 
 
 
