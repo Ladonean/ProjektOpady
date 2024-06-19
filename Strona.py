@@ -4,10 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import requests
 from io import StringIO
+import geopandas as gpd
+from geokrige.tools import TransformerGDF
+from scipy.interpolate import griddata
 
 # URLs to the CSV files
 path_csv1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_07_2007.csv'
 path_stacje1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/Stacje.csv'
+path_shapefile = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
 
 # Function to read CSV from URL
 def wczytaj_csv(url):
@@ -46,6 +50,35 @@ def suma_opadow(tabela):
     df_suma['Opady'] = df_suma['Opady'].astype(float)
     return df_suma
 
+
+def plot_wynik(path_shapefile, Wynik):
+
+    X = np.column_stack([Wynik['X'], Wynik['Y']])
+    y = np.array(Wynik['Opady'])
+
+    prediction_gdf = gpd.read_file(path_shapefile).to_crs(crs='EPSG:4326')
+    transformer = TransformerGDF()
+    transformer.load(prediction_gdf)
+    meshgrid = transformer.meshgrid(density=2)
+    mask = transformer.mask()
+
+    X_siatka, Y_siatka = meshgrid
+    Z_siatka = griddata((X[:, 1], X[:, 0]), y, (X_siatka, Y_siatka), method='nearest')
+    Z_siatka[~mask] = None
+
+    fig, ax = plt.subplots()
+    prediction_gdf.plot(facecolor='none', edgecolor='black', linewidth=1.5, zorder=5, ax=ax) 
+    cbar = ax.contourf(X_siatka, Y_siatka, Z_siatka, cmap='YlGnBu', levels=np.arange(0, 360, 10), extend='min')
+    cax = fig.add_axes([0.93, 0.134, 0.02, 0.72])
+    colorbar = plt.colorbar(cbar, cax=cax, orientation='vertical')
+
+    ax.grid(lw=0.2)
+    ax.set_title('Opady miesiąc ...', fontweight='bold', pad=15)
+
+    #scatter = ax.scatter(Wynik['Y'].astype(float), Wynik['X'].astype(float), c='black', marker='x',label='Punkty pomiarowe')
+    
+    return fig, ax
+
 # Streamlit app layout
 st.title("OpadyPolska")
 
@@ -75,3 +108,8 @@ if df is not None and df_baza is not None:
 
 else:
     st.error("Failed to load data.")
+
+
+fig, ax = plot_wynik(path_shapefile, Wynik)
+
+st.pyplot(fig)
