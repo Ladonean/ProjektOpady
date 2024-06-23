@@ -100,7 +100,7 @@ def predict_rainfall(X_train, y_train, X_pred):
 st.title("OpadyPolska")
 
 # Wybór roku i miesiąca
-year = st.selectbox("Wybierz rok", [2018, 2019, 2020, 2021, 2022])
+year = st.selectbox("Wybierz rok", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
 month = st.selectbox("Wybierz miesiąc", 
                      ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
                       "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"])
@@ -148,13 +148,13 @@ else:
 st.title("Przewidywanie Opadów")
 
 # Wybór zakresu dat do przewidywania
-start_year = st.selectbox("Wybierz rok początkowy", [2018, 2019, 2020, 2021])
-end_year = st.selectbox("Wybierz rok końcowy", [2019, 2020, 2021, 2022])
+start_year = st.selectbox("Wybierz rok początkowy", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021])
+end_year = st.selectbox("Wybierz rok końcowy", [2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
 start_month = st.selectbox("Wybierz miesiąc początkowy", list(months_dict.keys()))
 end_month = st.selectbox("Wybierz miesiąc końcowy", list(months_dict.keys()))
 
 # Wybór docelowej daty do przewidywania
-pred_year = st.selectbox("Wybierz rok do przewidywania", [2023, 2024, 2025])
+pred_year = st.selectbox("Wybierz rok do przewidywania", [2024, 2025, 2026])
 pred_month = st.selectbox("Wybierz miesiąc do przewidywania", list(months_dict.keys()))
 
 if st.button("Przewiduj"):
