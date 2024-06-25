@@ -11,7 +11,7 @@ import calendar
 from sklearn.ensemble import RandomForestRegressor
 
 # Tłumaczenie polskich nazw miesięcy na angielskie
-mies_d = {
+months_dict = {
     "Styczeń": "January",
     "Luty": "February",
     "Marzec": "March",
@@ -26,7 +26,7 @@ mies_d = {
     "Grudzień": "December"
 }
 
-# Odczytywanie z csv
+# Function to read CSV from URL
 def wczytaj_csv(url):
     response = requests.get(url)
     if response.status_code != 200:
@@ -35,13 +35,13 @@ def wczytaj_csv(url):
     data = response.content.decode('windows-1250')
     df = pd.read_csv(StringIO(data), delimiter=',', header=None)
     
-    # Wyciąganie danych
+    # Selecting and reshaping relevant columns
     df = df.iloc[:, [0, 1, 5]]
     df.columns = ['Kod stacji', 'Stacja', 'Opady']
     
     return df
 
-# wczytanie z githuba
+# Function to read station data from URL
 def wczytaj_stacje(url):
     response = requests.get(url)
     if response.status_code != 200:
@@ -56,7 +56,7 @@ def wczytaj_stacje(url):
     
     return df
 
-# suma opadów dla miesiąca
+# Function to calculate sum of rainfall
 def suma_opadow(tabela):
     if tabela is None:
         return None
@@ -65,22 +65,22 @@ def suma_opadow(tabela):
     df_suma['Opady'] = df_suma['Opady'].astype(float)
     return df_suma
 
-def plot_wynik(shp, Wynik, title):
+def plot_wynik(path_shapefile, Wynik, title):
     X = np.column_stack([Wynik['X'], Wynik['Y']])
     y = np.array(Wynik['Opady'])
 
-    gdf_p = gpd.read_file(shp).to_crs(crs='EPSG:4326')
+    prediction_gdf = gpd.read_file(path_shapefile).to_crs(crs='EPSG:4326')
     transformer = TransformerGDF()
-    transformer.load(gdf_p)
+    transformer.load(prediction_gdf)
     meshgrid = transformer.meshgrid(density=2)
-    maska = transformer.maska()
+    mask = transformer.mask()
 
     X_siatka, Y_siatka = meshgrid
     Z_siatka = griddata((X[:, 1], X[:, 0]), y, (X_siatka, Y_siatka), method='nearest')
-    Z_siatka[~maska] = None
+    Z_siatka[~mask] = None
 
     fig, ax = plt.subplots()
-    gdf_p.plot(facecolor='none', edgecolor='black', linewidth=1.5, zorder=5, ax=ax) 
+    prediction_gdf.plot(facecolor='none', edgecolor='black', linewidth=1.5, zorder=5, ax=ax) 
     cbar = ax.contourf(X_siatka, Y_siatka, Z_siatka, cmap='YlGnBu', levels=np.arange(0, 360, 10), extend='min')
     cax = fig.add_axes([0.93, 0.134, 0.02, 0.72])
     colorbar = plt.colorbar(cbar, cax=cax, orientation='vertical')
@@ -100,21 +100,21 @@ def predict_rainfall(X_train, y_train, X_pred):
 st.title("OpadyPolska")
 
 # Wybór roku i miesiąca
-rok = st.selectbox("Wybierz rok", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
-mies = st.selectbox("Wybierz miesiąc", 
+year = st.selectbox("Wybierz rok", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
+month = st.selectbox("Wybierz miesiąc", 
                      ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
                       "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"])
 
 # Konwersja nazwy miesiąca na dwucyfrowy numer miesiąca
-english_mies = mies_d[mies]
-mies_l = str(list(calendar.mies_name).index(english_mies)).zfill(2)
+english_month = months_dict[month]
+month_number = str(list(calendar.month_name).index(english_month)).zfill(2)
 
 # Generowanie ścieżki pliku na podstawie wyboru
-path_csv1 = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{mies_l}_{rok}.csv'
+path_csv1 = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{month_number}_{year}.csv'
 path_stacje1 = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/Stacje.csv'
-shp = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
+path_shapefile = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
 
-# procesowanie danych
+# Fetching and processing data
 df = wczytaj_csv(path_csv1)
 df_baza = wczytaj_stacje(path_stacje1)
 
@@ -132,42 +132,42 @@ if df is not None and df_baza is not None:
     st.title('Tabela')
     st.dataframe(Wynik, width=800, height=1200)
     
-    max = Wynik['Opady'].astype(float).max()
-    min = Wynik['Opady'].astype(float).min()
+    max_value = Wynik['Opady'].astype(float).max()
+    min_value = Wynik['Opady'].astype(float).min()
     
-    st.write(f"Maksymalna ilość opadów: {max}")
-    st.write(f"Minimalna ilość opadów: {min}")
+    st.write(f"Maksymalna ilość opadów: {max_value}")
+    st.write(f"Minimalna ilość opadów: {min_value}")
 
     # Rysowanie mapy
-    fig, ax = plot_wynik(shp, Wynik, f'Opady {mies} {rok}')
+    fig, ax = plot_wynik(path_shapefile, Wynik, f'Opady {month} {year}')
     st.pyplot(fig)
 else:
     st.error("Nie udało się załadować danych.")
 
-# Przewidywanie
+# Prediction Section
 st.title("Przewidywanie Opadów")
 
 # Wybór zakresu dat do przewidywania
-start_rok = st.selectbox("Wybierz rok początkowy", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021])
-end_rok = st.selectbox("Wybierz rok końcowy", [2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
-start_mies = st.selectbox("Wybierz miesiąc początkowy", list(mies_d.keys()))
-end_mies = st.selectbox("Wybierz miesiąc końcowy", list(mies_d.keys()))
+start_year = st.selectbox("Wybierz rok początkowy", [2010,2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021])
+end_year = st.selectbox("Wybierz rok końcowy", [2011,2012,2013,2014,2015,2016,2017,2018, 2019, 2020, 2021, 2022])
+start_month = st.selectbox("Wybierz miesiąc początkowy", list(months_dict.keys()))
+end_month = st.selectbox("Wybierz miesiąc końcowy", list(months_dict.keys()))
 
 # Wybór docelowej daty do przewidywania
-pred_rok = st.selectbox("Wybierz rok do przewidywania", [2024, 2025, 2026])
-pred_mies = st.selectbox("Wybierz miesiąc do przewidywania", list(mies_d.keys()))
+pred_year = st.selectbox("Wybierz rok do przewidywania", [2024, 2025, 2026])
+pred_month = st.selectbox("Wybierz miesiąc do przewidywania", list(months_dict.keys()))
 
 if st.button("Przewiduj"):
     # Zbieranie danych z wybranego zakresu
     all_data = []
-    for yr in range(start_rok, end_rok + 1):
-        for miess in mies_d.keys():
-            mies_l = str(list(calendar.mies_name).index(mies_d[miess])).zfill(2)
-            path_csv = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{mies_l}_{yr}.csv'
+    for yr in range(start_year, end_year + 1):
+        for mnth in months_dict.keys():
+            month_number = str(list(calendar.month_name).index(months_dict[mnth])).zfill(2)
+            path_csv = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{month_number}_{yr}.csv'
             df_temp = wczytaj_csv(path_csv)
             if df_temp is not None:
                 df_temp['Rok'] = yr
-                df_temp['Miesiąc'] = mies_l
+                df_temp['Miesiąc'] = month_number
                 all_data.append(df_temp)
 
     if all_data:
@@ -188,10 +188,10 @@ if st.button("Przewiduj"):
         y_train = Wynik_all['Opady'].values
 
         # Przygotowanie danych do przewidywania
-        pred_mies_l = str(list(calendar.mies_name).index(mies_d[pred_mies])).zfill(2)
+        pred_month_number = str(list(calendar.month_name).index(months_dict[pred_month])).zfill(2)
         X_pred = df_baza[['X', 'Y']].copy()
-        X_pred['Rok'] = pred_rok
-        X_pred['Miesiąc'] = pred_mies_l
+        X_pred['Rok'] = pred_year
+        X_pred['Miesiąc'] = pred_month_number
         X_pred = X_pred[['Rok', 'Miesiąc', 'X', 'Y']].values
 
         # Przewidywanie
@@ -202,14 +202,14 @@ if st.button("Przewiduj"):
         st.title('Przewidywane Opady')
         st.dataframe(df_baza, width=800, height=1200)
 
-        max_p = df_baza['Opady'].max()
-        min_p = df_baza['Opady'].min()
+        max_pred_value = df_baza['Opady'].max()
+        min_pred_value = df_baza['Opady'].min()
 
-        st.write(f"Maksymalna przewidywana ilość opadów: {max_p}")
-        st.write(f"Minimalna przewidywana ilość opadów: {min_p}")
+        st.write(f"Maksymalna przewidywana ilość opadów: {max_pred_value}")
+        st.write(f"Minimalna przewidywana ilość opadów: {min_pred_value}")
 
-        # Rysowanie mapy 
-        fig_pred, ax_pred = plot_wynik(shp, df_baza, f'Przewidywane opady {pred_mies} {pred_rok}')
+        # Rysowanie mapy przewidywań
+        fig_pred, ax_pred = plot_wynik(path_shapefile, df_baza, f'Przewidywane opady {pred_month} {pred_year}')
         st.pyplot(fig_pred)
     else:
         st.error("Nie udało się załadować danych do przewidywania.")
