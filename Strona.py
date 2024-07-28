@@ -116,8 +116,9 @@ path_shapefile = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm
 
 # Fetching and processing data
 df = wczytaj_csv(path_csv1)
-st.dataframe(df)
+
 df_baza = wczytaj_stacje(path_stacje1)
+st.dataframe(df_baza)
 
 if df is not None and df_baza is not None:
     df_suma = suma_opadow(df)
