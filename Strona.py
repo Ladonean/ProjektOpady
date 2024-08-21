@@ -136,7 +136,7 @@ if df_opady is not None and df_stacje is not None:
 
     # Rysowanie mapy
     fig, ax = plot_wynik(path_shp, Wynik, f'Opady {miesiac} {rok}')
-
+    st.title('Mapa Opadów')
     st.pyplot(fig)
 else:
     st.error("Nie udało się załadować danych.")
