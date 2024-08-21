@@ -82,8 +82,10 @@ def plot_wynik(path_shp, Wynik, title):
     Z_siatka[~mask] = None
 
     fig, ax = plt.subplots()
-    granica.plot(facecolor='none', edgecolor='black', linewidth=1.5, zorder=5, ax=ax) 
-    cbar = ax.contourf(X_siatka, Y_siatka, Z_siatka, cmap='YlGnBu', levels=np.arange(0, np.max(y), 20), extend='min')
+    granica.plot(facecolor='none', edgecolor='black', linewidth=1.5, zorder=5, ax=ax)
+    y_s = np.sort(y)[-5:]
+    avg5 = np.mean(y_s)
+    cbar = ax.contourf(X_siatka, Y_siatka, Z_siatka, cmap='YlGnBu', levels=np.arange(0, avg5, 20), extend='min')
     cax = fig.add_axes([0.93, 0.134, 0.02, 0.72])
     colorbar = plt.colorbar(cbar, cax=cax, orientation='vertical')
 
