@@ -108,7 +108,7 @@ e_miesiac = miesiac_d[miesiac]
 miesiac_l = str(list(calendar.month_name).index(e_miesiac)).zfill(2)
 
 # Generowanie ścieżki pliku na podstawie wyboru
-path_opady = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/o_d_{miesiac_l}_{rok}.csv'
+path_opady = f'https://raw.githubusercontent.com/Ladonean/FigDetect/main/opady/o_d_{miesiac_l}_{rok}.csv'
 path_stacje = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/Stacje.csv'
 path_shp = 'https://raw.githubusercontent.com/Ladonean/FigDetect/main/gadm41_POL_1.shp'
 
